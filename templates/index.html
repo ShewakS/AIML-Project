@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Question Generator & Evaluator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            
+           
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: auto auto;
+            min-width: 100%;
+            padding: 40px;
+            min-height: 90vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        
+        .feature-form {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 35px;
+            margin-bottom: 40px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .form-select, .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-generate {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .question-container {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+        
+        .question-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .passage-text {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-size: 1.1em;
+        }
+        
+        .question-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .options-container {
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+        
+        .option-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+        
+        .option-item:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        
+        .option-item.selected {
+            border-color: #667eea;
+            background: #e3f2fd;
+        }
+        
+        .btn-evaluate {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-evaluate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+        
+        .result-container {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: none;
+        }
+        
+        .result-correct {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .result-incorrect {
+            background: linear-gradient(45deg, #dc3545, #e74c3c);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            color: #667eea;
+        }
+        
+        .stats-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-container">
+                    <!-- Header -->
+                    <div class="header">
+                        <h1><i class="fas fa-brain"></i> AI Question Generator & Evaluator</h1>
+                        <p>Generate intelligent questions based on your criteria and evaluate answers with AI</p>
+                    </div>
+
+                    <!-- Dataset Stats -->
+                    <div class="stats-container" id="datasetStats" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="totalSamples">-</div>
+                                    <div class="stat-label">Total Questions</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="totalSubjects">-</div>
+                                    <div class="stat-label">Subjects</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="totalDifficulties">-</div>
+                                    <div class="stat-label">Difficulty Levels</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="totalTypes">-</div>
+                                    <div class="stat-label">Question Types</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Selection Form -->
+                    <div class="feature-form">
+                        <h3><i class="fas fa-cogs"></i> Question Criteria</h3>
+                        <form id="questionForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <select class="form-select" id="subject" name="subject">
+                                        <option value="">Any Subject</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="difficulty" class="form-label">Difficulty Level</label>
+                                    <select class="form-select" id="difficulty" name="difficulty">
+                                        <option value="">Any Difficulty</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="question_type" class="form-label">Question Type</label>
+                                    <select class="form-select" id="question_type" name="question_type">
+                                        <option value="">Any Type</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="domain" class="form-label">Domain</label>
+                                    <select class="form-select" id="domain" name="domain">
+                                        <option value="">Any Domain</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-generate">
+                                    <i class="fas fa-magic"></i> Generate Question
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Question Container -->
+                    <div class="question-container" id="questionContainer">
+                        <div class="question-header">
+                            <h4><i class="fas fa-question-circle"></i> Generated Question</h4>
+                        </div>
+                        
+                        <div class="passage-text" id="passageText"></div>
+                        
+                        <div class="question-text" id="questionText"></div>
+                        
+                        <div class="options-container" id="optionsContainer"></div>
+                        
+                        <div class="text-center">
+                            <button class="btn btn-evaluate" id="evaluateBtn" disabled>
+                                <i class="fas fa-check-circle"></i> Evaluate Answer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Result Container -->
+                    <div class="result-container" id="resultContainer">
+                        <div id="resultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentQuestion = null;
+        let selectedOption = null;
+
+        // Load dataset info on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDatasetInfo();
+        });
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch('/api/dataset-info');
+                const data = await response.json();
+                
+                if (data.success) {
+                    populateDropdowns(data.info);
+                    showDatasetStats(data.info);
+                } else {
+                    console.error('Error loading dataset info:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+            }
+        }
+
+        function populateDropdowns(info) {
+            // Populate subject dropdown
+            const subjectSelect = document.getElementById('subject');
+            info.subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
+            });
+
+            // Populate difficulty dropdown
+            const difficultySelect = document.getElementById('difficulty');
+            info.difficulty_levels.forEach(difficulty => {
+                const option = document.createElement('option');
+                option.value = difficulty;
+                option.textContent = difficulty;
+                difficultySelect.appendChild(option);
+            });
+
+            // Populate question type dropdown
+            const questionTypeSelect = document.getElementById('question_type');
+            info.question_types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                questionTypeSelect.appendChild(option);
+            });
+
+            // Populate domain dropdown
+            const domainSelect = document.getElementById('domain');
+            info.domains.forEach(domain => {
+                const option = document.createElement('option');
+                option.value = domain;
+                option.textContent = domain;
+                domainSelect.appendChild(option);
+            });
+        }
+
+        function showDatasetStats(info) {
+            document.getElementById('totalSamples').textContent = info.total_samples;
+            document.getElementById('totalSubjects').textContent = info.subjects.length;
+            document.getElementById('totalDifficulties').textContent = info.difficulty_levels.length;
+            document.getElementById('totalTypes').textContent = info.question_types.length;
+            document.getElementById('datasetStats').style.display = 'block';
+        }
+
+        // Handle form submission
+        document.getElementById('questionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const features = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (value) {
+                    features[key] = value;
+                }
+            }
+
+            await generateQuestion(features);
+        });
+
+        async function generateQuestion(features) {
+            const questionContainer = document.getElementById('questionContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // Show loading
+            questionContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Generating question...</p>
+                </div>
+            `;
+            questionContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(features)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayQuestion(data.question);
+                    currentQuestion = data.question;
+                } else {
+                    questionContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Error: ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                questionContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayQuestion(question) {
+            const questionContainer = document.getElementById('questionContainer');
+            
+            // Debug: Log the question data
+            console.log('Displaying question:', question);
+            console.log('Options count:', question.options ? question.options.length : 'No options');
+            
+            questionContainer.innerHTML = `
+                <div class="question-header">
+                    <h4><i class="fas fa-question-circle"></i> Generated Question</h4>
+                    <small>Subject: ${question.subject} | Difficulty: ${question.difficulty} | Type: ${question.question_type}</small>
+                </div>
+                
+                <div class="passage-text">
+                    <strong>Passage:</strong><br>
+                    ${question.passage}
+                </div>
+                
+                <div class="question-text">
+                    ${question.question}
+                </div>
+                
+                <div class="options-container" id="optionsContainer">
+                    <h5 style="margin-bottom: 20px; color: #2c3e50;"><i class="fas fa-list"></i> Choose your answer:</h5>
+                    ${question.options ? question.options.map((option, index) => `
+                        <div class="option-item" data-option="${index + 1}" onclick="selectOption(${index + 1})">
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="font-weight: bold; margin-right: 15px; min-width: 35px; color: #667eea; font-size: 1.2em;">${index + 1}.</span>
+                                <span style="flex: 1; font-size: 1.1em; line-height: 1.4;">${option}</span>
+                            </div>
+                        </div>
+                    `).join('') : '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> No options available</div>'}
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-evaluate" id="evaluateBtn" disabled onclick="evaluateAnswer()">
+                        <i class="fas fa-check-circle"></i> Evaluate Answer
+                    </button>
+                </div>
+            `;
+            
+            // Reset selection
+            selectedOption = null;
+        }
+
+        function selectOption(optionNumber) {
+            // Remove previous selection
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            document.querySelector(`[data-option="${optionNumber}"]`).classList.add('selected');
+            
+            selectedOption = optionNumber;
+            document.getElementById('evaluateBtn').disabled = false;
+        }
+
+        async function evaluateAnswer() {
+            if (!currentQuestion || !selectedOption) {
+                alert('Please select an option first');
+                return;
+            }
+
+            const resultContainer = document.getElementById('resultContainer');
+            
+            // Show loading
+            resultContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Evaluating answer...</p>
+                </div>
+            `;
+            resultContainer.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/evaluate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: currentQuestion,
+                        selected_option: selectedOption
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResult(data.result);
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Error: ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayResult(result) {
+            const resultContainer = document.getElementById('resultContainer');
+            
+            const resultClass = result.is_correct ? 'result-correct' : 'result-incorrect';
+            const resultIcon = result.is_correct ? 'fa-check-circle' : 'fa-times-circle';
+            const resultText = result.is_correct ? 'Correct!' : 'Incorrect!';
+            
+            resultContainer.innerHTML = `
+                <div class="${resultClass}">
+                    <h4><i class="fas ${resultIcon}"></i> ${resultText}</h4>
+                    <p>You selected option ${result.selected_option}, the correct answer is option ${result.correct_option}.</p>
+                </div>
+                
+                <div class="mt-3">
+                    <h5><i class="fas fa-lightbulb"></i> Hint:</h5>
+                    <p>${result.hint}</p>
+                </div>
+                
+                <div class="mt-3">
+                    <h5><i class="fas fa-info-circle"></i> Explanation:</h5>
+                    <p>${result.explanation}</p>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-generate" onclick="resetForm()">
+                        <i class="fas fa-refresh"></i> Generate New Question
+                    </button>
+                </div>
+            `;
+        }
+
+        function resetForm() {
+            document.getElementById('questionForm').reset();
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'none';
+            currentQuestion = null;
+            selectedOption = null;
+        }
+    </script>
+</body>
+</html>
